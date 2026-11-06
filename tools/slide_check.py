@@ -1,6 +1,7 @@
 """Everything after the trace, on the straightened phone: measure once, build, compare with the photo. So nothing is read off a frame by eye first and a phone takes minutes, not rounds.
   python3 tools/slide_check.py <prefix> flat <out.jpg> [margin]   -> the phone straightened, ruler in screenshot px (591 wide). State: corners/<prefix>.json
   python3 tools/slide_check.py <prefix> measure                   -> notch or island, status groups, the blacks; prints the options and the `slide_status.py init` line to use
+  python3 tools/slide_check.py <prefix> frame                         -> the black frame's width on each side, on a white screen: OK or FIX, picture of the 4 corners
   python3 tools/slide_check.py <prefix> leak                          -> thermal map of what the photo still shows through the glass
   python3 tools/slide_check.py <prefix> build                     -> the recipe's frame to out/<prefix>.jpg, red test, out/<prefix>-split.jpg (photo | red | ours), out/<prefix>-zoom.jpg, out/<prefix>-top.jpg (straightened top: the photo with our cutout's outline, ours, red), blacks photo against ours"""
 import glob, json, os, subprocess, sys, tempfile
@@ -26,6 +27,15 @@ if cmd == "leak":   # thermal map of what the photo still shows through the glas
     g = cv2.cvtColor(flat(cv2.imread(f"{t}/b.jpg"), 24, 1), cv2.COLOR_BGR2GRAY).astype(np.float32); heat = cv2.applyColorMap(np.clip(np.log1p(g) / np.log(64) * 255, 0, 255).astype(np.uint8), cv2.COLORMAP_INFERNO)
     inner = g[24:24 + 1280, 24:24 + 591]; hot = inner > 12; n, lab, st, _ = cv2.connectedComponentsWithStats(hot.astype(np.uint8), connectivity=8); spots = sorted(((int(st[i, 4]), int(st[i, 0]), int(st[i, 1]), int(st[i, 2]), int(st[i, 3])) for i in range(1, n)), reverse=True)[:6]
     print(f"{pre}: lit pixels on the screen {int(hot.sum())}, biggest spots (area, x, y, w, h): {spots}"); cv2.imwrite(f"out/{pre}-leak.jpg", heat, [cv2.IMWRITE_JPEG_QUALITY, 92]); sys.exit()
+if cmd == "frame":   # the black frame is hardware, one width all round. Built on a white screen, so nothing hides it; widths in screenshot px (591 wide), straightened. Spread over 4 px: FIX
+    os.makedirs(os.path.dirname(f"out/{pre}-frame.jpg") or ".", exist_ok=True); R = json.load(open(f"{D}/corners/{pre}.recipe.json")); t = tempfile.mkdtemp(); cv2.imwrite(f"{t}/white.png", np.full((1280, 591, 3), 245, np.uint8)); json.dump(dict(R, screenshot=f"{t}/white.png", opts=dict(R["opts"], egain=0, grain=0)), open(f"{t}/r.json", "w")); subprocess.run([sys.executable, "tools/slide_final.py", f"{t}/r.json", f"{t}/w.jpg"], check=True, stdout=subprocess.DEVNULL); W_, P_ = cv2.imread(f"{t}/w.jpg"), cv2.imread(CROP); O_ = np.arange(0, 60, .25)
+    def widths(im):
+        g_ = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY).astype(np.float32); out_ = {}
+        for nm, xs, ys, ax in (("top", np.arange(460, 560, 2.), -O_, 1), ("right", FW + O_, np.arange(300, 980, 4.), 0), ("bottom", np.arange(150, 440, 2.), FH + O_, 1), ("left", -O_, np.arange(300, 980, 4.), 0)):
+            gr_ = grid(xs, ys); p_ = np.median(cv2.remap(g_, gr_[..., 0], gr_[..., 1], cv2.INTER_LINEAR), axis=ax); a_ = int(np.argmax(p_ < 70)); e_ = np.where(p_[a_:] > 70)[0]; out_[nm] = float(O_[a_ + e_[0]]) if len(e_) else None
+        return out_
+    wo, wp = widths(W_), widths(P_); v_ = [x for x in wo.values() if x is not None]; sp = max(v_) - min(v_) if v_ else 0.; print(f"{pre} ours {wo}\n{pre} photo {wp}\n{pre} spread {sp:.1f} px: {'OK' if sp <= 4 else 'FIX'}")
+    f_ = flat(W_, 60, 2); ts = [f_[y_:y_ + 360, x_:x_ + 360] for x_, y_ in ((0, 0), (f_.shape[1] - 360, 0), (0, f_.shape[0] - 360), (f_.shape[1] - 360, f_.shape[0] - 360))]; cv2.imwrite(f"out/{pre}-frame.jpg", np.vstack([np.hstack(ts[:2]), np.hstack(ts[2:])]), [cv2.IMWRITE_JPEG_QUALITY, 92]); sys.exit()
 if cmd == "measure":
     Z = 2; rows = np.arange(0, 90, .5); g = grid(np.arange(100, 491, 1 / Z), rows); im = cv2.imread(CROP); L_ = cv2.GaussianBlur(cv2.remap(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY), g[..., 0], g[..., 1], cv2.INTER_LINEAR).astype(np.float32), (0, 0), 1.); xs = np.arange(100, 491, 1 / Z); c = int(np.searchsorted(xs, 295.5)); black = float(np.median(L_[np.searchsorted(rows, 20):np.searchsorted(rows, 34), c - 60:c + 60])); pgL, pgR = np.median(L_[:, :40], axis=1), np.median(L_[:, -40:], axis=1); W = []
     for j, y in enumerate(rows):

@@ -36,6 +36,8 @@ python3 tools/slide_status.py $P init <line from measure>; python3 tools/slide_s
 python3 tools/slide_check.py $P build
 # 9. Thermal map of leaks
 python3 tools/slide_check.py $P leak
+# 10. Frame width
+python3 tools/slide_check.py $P frame
 ```
 After that it is a template: `python3 swap.py <image> -t $P`.
 
@@ -45,7 +47,18 @@ After that it is a template: `python3 swap.py <image> -t $P`.
 3. **`out/$P-top.jpg`:** the cutout's green outline on the photo, the icons in place.
 4. **`out/$P-zoom.jpg`:** corners and frame, big, beside the photo.
 5. The template with a **white image** through `swap.py`: a dark page hides bad corners and edges.
-6. **Frame width:** the black frame is one width all round, that is hardware. `slide_trace.py` reads the visible black on each side and gives every side the median (the `frame:` line in its output). Check on the white image that top and side match.
+6. **`out/$P-frame.jpg`:** the four corners on a white screen. A template isn't done until the frame check below passes.
+
+## Frame check
+The black frame is hardware, one width all round. `slide_check.py $P frame` builds on a white screen, straightens it and measures the black at the middle of each side, in screenshot pixels (591 wide). It prints `ours` and `photo` per side, the spread and a verdict: up to 4 px is `OK`, more is `FIX`.
+The 4 px limit is picked from these phones: a spread of 7.5 px was plainly visible, and 4 px wasn't.
+If it says `FIX` on a new template:
+1. Run `slide_trace.py` again: it reads the visible black and gives every side the median (the `frame:` line).
+2. Rebuild, then run `frame` again.
+3. Still `FIX`: compare `ours` with `photo`. If they match, a glare, case or hand hides the frame on that side in the photo. If they don't, the contour is off: look at `-frame.jpg` and `-split.jpg`.
+4. If it won't converge, don't call the template done. Say which side is off, and by how many px.
+Check `-frame.jpg` by eye as well: top and side should match.
+The shipped templates: `f38fe44a` 2.2, `79186658` 3.2 and `895d3ee8` 3.8 pass. `f5dad639` 5.8, `a841f108` 6.2 and `14278a0b` 8.5 don't: their frames were kept as first built.
 
 ## Settings
 - **Black:** `floor`, so the frame and cutout match the photo. Start at `.003` and lower it if the photo is darker. `build` prints both.

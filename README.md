@@ -82,6 +82,7 @@ Skip photos with a finger or sleeve over the screen: that case isn't handled on 
 - **Red test:** the same build on a solid red screen shows the shape, the cutout, and any gap.
 - **Proof:** the fit leaves out part of the edge, then gets scored on what it didn't see.
 - **Leak map:** a thermal map of everything from the old screen that still shows through the glass.
+- **Frame check:** the black frame is measured on all four sides, and they must match.
 - **White test:** a bright image shows up the corners and edges that a dark page hides.
 
 ## Limits
