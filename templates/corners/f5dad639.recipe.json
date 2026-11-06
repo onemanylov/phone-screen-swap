@@ -1,0 +1,33 @@
+{
+ "frame": "f5dad63987573bb4f8fa4629be5bf8a6",
+ "screenshot": "assets/example-screen.png",
+ "env": "assets/reflection.jpg",
+ "pose": "templates/corners/f5dad639.pose.json",
+ "opts": {
+  "cut": 2,
+  "cx0": 208.5,
+  "cx1": 382.5,
+  "cy1": 66.5,
+  "glass": 0,
+  "lift": 0,
+  "floor": 0.003,
+  "bloom": 0.5,
+  "bglass": 0.25,
+  "soft": 0.4,
+  "whole": 1,
+  "epov": 1,
+  "ecenter": 1,
+  "eperson": 0,
+  "eblur": 3,
+  "ehdr": 8,
+  "ex": 0.5,
+  "ey": 0.5,
+  "efov": 22,
+  "egain": 0.08,
+  "grain": 0.7,
+  "jpeg": 92,
+  "gw": 24,
+  "cy0": 16.5
+ },
+ "corners": "templates/corners/f5dad639.json"
+}

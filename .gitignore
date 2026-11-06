@@ -1,0 +1,7 @@
+out/
+photos/
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+templates/corners/*.screen.png

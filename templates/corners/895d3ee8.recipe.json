@@ -1,0 +1,33 @@
+{
+ "frame": "895d3ee86135f7dc41d658ccc3618b12",
+ "screenshot": "assets/example-screen.png",
+ "env": "assets/reflection.jpg",
+ "pose": "templates/corners/895d3ee8.pose.json",
+ "opts": {
+  "cut": 2,
+  "glass": 0,
+  "lift": 0,
+  "floor": 0.003,
+  "bloom": 0.5,
+  "bglass": 0.25,
+  "soft": 0.4,
+  "whole": 1,
+  "gw": 8,
+  "epov": 1,
+  "ecenter": 1,
+  "eperson": 0,
+  "eblur": 3,
+  "ehdr": 8,
+  "ex": 0.5,
+  "ey": 0.5,
+  "efov": 22,
+  "egain": 0.08,
+  "grain": 0.7,
+  "jpeg": 92,
+  "cx0": 209,
+  "cx1": 382,
+  "cy0": 15,
+  "cy1": 63
+ },
+ "corners": "templates/corners/895d3ee8.json"
+}
