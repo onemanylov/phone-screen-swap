@@ -202,7 +202,13 @@ def rim_out(q, R, k):
     for nm, ax, at, sgn, ln in (("top", "h", 0, -1, FW), ("right", "v", FW, 1, FH), ("bottom", "h", FH, 1, FW), ("left", "v", 0, -1, FH)):
         t, n = np.meshgrid(np.arange(R * 1.3, ln - R * 1.3, 2.), ac); fx, fy = (t, at + sgn * n) if ax == "h" else (at + sgn * n, t); p = np.median(rect_grid(q, k, fx, fy, LOG), axis=1); st_ = np.array([np.median(p[min(j + 4, len(p) - 1):j + 25]) - np.median(p[max(j - 12, 0):max(j - 3, 1)]) for j in range(len(p))]); up = np.where(st_ > .5)[0]; o_[nm] = None
         if len(up): e = up[0]; run_ = up[(up >= e) & (up < e + 16)]; o_[nm] = float(half(p, int(run_[np.argmax(st_[run_])]), ac))
-    known = [v for v in o_.values() if v is not None]; m_ = float(np.median(known)) if known else 20.; return {a: (m_ if v is None else v) for a, v in o_.items()}
+    known = [v for v in o_.values() if v is not None]; m_ = float(np.median(known)) if known else 20.; o_ = {a: (m_ if v is None else v) for a, v in o_.items()}
+    # the black frame is one width all round, that's hardware. A glare or a case lip can hide part of one side, and a thin seam can stop the step early, so the sides are read again as visible black and all get the median
+    vis_ = []
+    for nm, ax, at, sgn, ln in (("top", "h", 0, -1, FW), ("right", "v", FW, 1, FH), ("bottom", "h", FH, 1, FW), ("left", "v", 0, -1, FH)):
+        t, n = np.meshgrid(np.arange(R * 1.3, ln - R * 1.3, 2.), ac); fx, fy = (t, at + sgn * n) if ax == "h" else (at + sgn * n, t); p = np.median(rect_grid(q, k, fx, fy, LOG), axis=1); e = np.where(p > np.log(70 + 4))[0]
+        if len(e) and o_[nm] - 1 <= ac[e[0]] <= o_[nm] + 16: vis_.append(float(ac[e[0]]))
+    w_ = float(np.median(vis_)) if len(vis_) >= 3 else float(np.median(list(o_.values()))); print("frame: visible black", [round(v, 1) for v in vis_], "all sides", round(w_, 1)); return {a: w_ for a in o_}
 
 
 def run(kind, q, R, usek=True, usec=False, anchored=False):

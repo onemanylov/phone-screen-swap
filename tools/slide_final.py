@@ -17,6 +17,7 @@ if k and state.get("R"): env["SLIDE_R"] = str(state["R"])
 if k and state.get("glass"): env["SLIDE_GLASS"] = json.dumps(state["glass"])
 crop_, grey_, out_ = f"templates/crop/{f}.jpg", f"templates/grey/{f}.jpg", out
 # no grey frame: the photo with the traced screen filled flat. What the grey frame gave is covered by the traced outline and glass (5 phones rebuilt this way: no visible difference). Not covered: a finger lying over the screen
+if not os.path.exists(grey_): env["SLIDE_NOFRONT"] = "1"
 def flat_screen(im): g_ = im.copy(); cv2.fillConvexPoly(g_, np.round(np.array(json.loads(env["SLIDE_Q"]))).astype(np.int32), (200, 200, 200)); return g_
 if not k and not os.path.exists(grey_): g0 = tempfile.mkdtemp() + "/grey.png"; cv2.imwrite(g0, flat_screen(cv2.imread(crop_))); grey_ = g0
 if k:   # slide_trace.py: the corners live on the straightened photo. Draw there, then bend the glass back: the page then bends along with the photo and fits the edge all the way round. Outside the glass the photo stays untouched

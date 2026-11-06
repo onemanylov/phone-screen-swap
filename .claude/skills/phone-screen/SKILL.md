@@ -12,7 +12,7 @@ The whole front of the phone is replaced by code: the screen, the black frame, a
 For a template that already exists, this skill isn't needed: `python3 swap.py <image>`.
 
 ## New template
-Take: a real photo of an iPhone, the screen to the camera. Skip: Android, a tilt over 25°, one side over 1.2× the other (the crop refuses them). **Skip photos with a finger or sleeve over the screen:** with no grey frame, it gets painted over.
+Take: a real photo of an iPhone, the screen to the camera. Skip: Android, a tilt over 25°, one side over 1.2× the other (the crop refuses them). **Skip photos with a finger or sleeve over the screen:** with no grey frame, it gets painted over. All of the glass is ours, a glare on it too. Only skin coming in from outside stays from the photo.
 
 ```
 P=<name, 8 characters, unique>; D=templates/corners
@@ -45,6 +45,7 @@ After that it is a template: `python3 swap.py <image> -t $P`.
 3. **`out/$P-top.jpg`:** the cutout's green outline on the photo, the icons in place.
 4. **`out/$P-zoom.jpg`:** corners and frame, big, beside the photo.
 5. The template with a **white image** through `swap.py`: a dark page hides bad corners and edges.
+6. **Frame width:** the black frame is one width all round, that is hardware. `slide_trace.py` reads the visible black on each side and gives every side the median (the `frame:` line in its output). Check on the white image that top and side match.
 
 ## Settings
 - **Black:** `floor`, so the frame and cutout match the photo. Start at `.003` and lower it if the photo is darker. `build` prints both.
